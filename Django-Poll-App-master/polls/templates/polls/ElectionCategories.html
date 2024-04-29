@@ -1,0 +1,135 @@
+{% extends 'polls/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+	<title></title>
+
+	<style type="text/css">
+     *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: sans-serif;
+        font-size: 16px;
+
+      }
+      ul li{
+        list-style: none;
+      }
+    
+ h5{
+  font-size: 16px;
+  font-family: sans-serif;
+ }
+		
+
+	</style>
+
+</head>
+<body>
+	
+<div class="container-fluid">
+
+
+<center>
+		<h1 style="color: white;font-weight: bold;margin-top: 20px;">ELECTION CATEGORIES</h1>
+
+
+
+        {% if messages %}
+{% for message in messages %}
+     
+
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong style="color: red;font-size: 16px;">{{message}}</strong>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+    {% endfor %}
+  {% endif %}
+
+	</center>
+
+
+<!-- KAMA USER AMIJISAJILI ZINAANZIA HAPA -->
+
+
+
+<div class="buttons-container">
+
+
+	
+<!-- <center>
+		<h1 style="color: white;font-weight: bold;">SMART INVIGILATION<br> SYSTEM</h1>
+	</center> -->
+
+<div class="buttons"><!-- mwanzo wa buttons-div -->
+
+<a href="{% url 'home' %}" style="text-decoration: none;">
+<label>
+    <!-- <input type="checkbox" name="check"> -->
+    <span></span>
+    <i class="fa fa-home icon" style="color: yellow;">HOME</i>
+  </label>
+</a>
+
+ {% if categories %}
+{% for x in categories %}
+<a href="{% url 'list' x.id %}" style="text-decoration: none;">
+<label>
+    <!-- <input type="checkbox" name="check"> -->
+    <span></span>
+    
+   <i class="fa fa-user icon" style="font-size: 16px;"> {{x.Category}}</i> 
+
+  </label>
+</a>
+{% endfor %}
+
+{% else %}
+
+<h2 style="font-size: 18px;color: white;text-align: center;">No any Category was added</h2>
+
+{% endif %}
+
+
+	
+	
+
+</div><!-- mwisho wa buttons div -->
+
+
+
+
+</div><!-- mwisho wa butons-container -->
+
+
+
+<!-- KAMA USER AMIJISAJILI ZINAISHIA HAPA -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+</div><!-- mwisho wa container -->
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'polls/base2.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <title>Add Poll</title>
+
+
+
+    <style type="text/css">
+     *{
+        color: white;
+     }  
+      .form-group{
+        margin-bottom: 30px;
+     }
+     
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+    <div class="row center">
+        <div class="col-md-6 offset-md-3">
+            <h2>Create new poll</h2>
+            {% if messages %}
+            <ul class="messages">
+                  
+{% for message in messages %}
+     
+
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong style="color: red;font-size: 16px;">{{message}}</strong>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+    {% endfor %}
+            </ul>
+            {% endif %}
+            <form action="" method="POST">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group">
+                    {{ field.errors }}
+                    {{ field.label_tag }}
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Add Poll</button>
+                <a class="btn btn-warning" href="{% url 'AllElectionCategories' %}" role="button">Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,135 @@
+i'm using django and here i want to implement fingerprint user registration and authentication in website using only django framework with  the aid of django-mfa2 and python-fido.
+so the problem is by passing through my codes below i want to give me a full explanation on the following issues;
+1.which kind of fingerprint i can use for this project to allow users to be registered and logged in with their fingerprints.
+2.how i can connect that fingerprint scanner with my web system
+3.what time to connect that fingerprint scanner with my web system
+and these below are my django codes;
+views.py file codes;
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.contrib import auth
+from django.utils import timezone
+from django.conf import settings
+from .models import User
+from . import utils
+
+def login_user_in(request, username):
+    user=User.objects.get(username=username)
+    user.backend='django.contrib.auth.backends.ModelBackend'
+    auth.login(request, user)
+    if "redirect" in request.POST:
+        return redirect(request.POST["redirect"])
+    else:
+        return redirect(reverse('accounts:index'))
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST.get('username').replace('/', '')
+        user = User.objects.filter(username=username).first()
+        err=""
+        if user is not None:
+            if user.is_active:
+                if "mfa" in settings.INSTALLED_APPS:
+                    from mfa.helpers import has_mfa
+                    res =  has_mfa(request,username=username)
+                    if res: return res
+                    return login_user_in(request, username)
+            else:
+                err="This student is NOT activated yet."
+        else:
+            err="No student with such matriculation number exists."
+        return render(request, 'login.html', {"err":err})
+    else:
+        return render(request, 'login.html')
+
+def register(request):
+    if request.method == "POST":
+        error = ''
+        username = request.POST.get('username').replace('/', '')
+        display_name = request.POST.get('display-name')
+        if not utils.validate_username(username):
+           error = 'Invalid matriculation number'
+           return render(request, 'register.html', context = {'page_title': "Register", 'error': error})
+        if not utils.validate_display_name(display_name):
+           error = 'Invalid display name'
+           return render(request, 'register.html', context = {'page_title': "Register", 'error': error})
+        if User.objects.filter(username=username).exists():
+            error = 'Student already exists.'
+            return render(request, 'register.html', context = {'page_title': "Register", 'error': error})
+        else:
+            u = User.objects.create(first_name = display_name, password='none', is_superuser=False, username=username,  last_name='', display_name=display_name, email='none', is_staff=False, is_active=True,date_joined=timezone.now())
+            u.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth.login(request,u)
+            return redirect(reverse('start_fido2'))
+    else:
+        return render(request, 'register.html', context = {'page_title': "Register"})
+
+def index(request):
+    return render(request, 'index.html', {"page_title": "Welcome home"})
+
+urls.py file codes;
+app_name = 'accounts'
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('login/', views.login, name='login'),
+    path('register/', views.register, name='register'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+]
+models.py codes are;
+class User_Keys(models.Model):
+    username=models.CharField(max_length = 50)
+    properties=JSONField(null = True)
+    added_on=models.DateTimeField(auto_now_add = True)
+    key_type=models.CharField(max_length = 25,default = "TOTP")
+    enabled=models.BooleanField(default=True)
+    expires=models.DateTimeField(null=True,default=None,blank=True)
+    last_used=models.DateTimeField(null=True,default=None,blank=True)
+    owned_by_enterprise=models.BooleanField(default=None,null=True,blank=True)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.key_type == "Trusted Device" and self.properties.get("signature","") == "":
+            self.properties["signature"]= jwt.encode({"username": self.username, "key": self.properties["key"]}, settings.SECRET_KEY)
+        super(User_Keys, self).save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+
+    def __unicode__(self):
+        return "%s -- %s"%(self.username,self.key_type)
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        app_label='mfa'
+
+class User(AbstractUser):
+    display_name = models.CharField(max_length=32)
+
+settings.py codes are;
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'accounts.User'
+
+LOGOUT_REDIRECT_URL='accounts:index'
+
+
+
+MFA_UNALLOWED_METHODS=()   # Methods that shouldn't be allowed for the user
+MFA_LOGIN_CALLBACK="accounts.views.login_user_in"            # A function that should be called by username to login the user in session
+MFA_RECHECK=True           # Allow random rechecking of the user
+MFA_RECHECK_MIN=10         # Minimum interval in seconds
+MFA_RECHECK_MAX=30         # Maximum in seconds
+MFA_QUICKLOGIN=True        
+
+TOKEN_ISSUER_NAME="django_mfa2_example"      #TOTP Issuer name
+
+if DEBUG:
+  U2F_APPID="https://localhost"    #URL For U2F
+  FIDO_SERVER_ID=u"localhost"      # Server rp id for FIDO2, it the full domain of your project
+else:
+  U2F_APPID="https://django-mfa2-example.pythonanywhere.com"    #URL For U2F
+  FIDO_SERVER_ID=u"django-mfa2-example.pythonanywhere.com"      # Server rp id for FIDO2, it the full domain of your project
+
+FIDO_SERVER_NAME=u"django_mfa2_example"
+
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)

@@ -1,0 +1,334 @@
+i'm using django and here i want to implement registration and authentication process using passkey.
+Until now i have all codes to implement such thing and everything is working correctly.so to run my system using command you must write this 'uvicorn --reload main:app' in a command prompty and the html page is opened .
+So now the problem is, remember i'm using django so it is not possile for user to write this commend 'uvicorn --reload main:app' in cmd instead of pressing button to run that command.
+so i'm trying to create a view and url that when button is pressed in django templates, it runs this command 'uvicorn --reload main:app' instead of writing it in a command prompty but is not working so i need you to pass through my codes and help me to create a view and its url that when button is pressed in django html tempates, it runs this command 'uvicorn --reload main:app'.
+
+my views codes are;
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Count
+from django.contrib import messages
+from .models import *
+from .forms import *
+from django.http import HttpResponse
+from datetime import datetime, timedelta
+import pyotp
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+
+
+#PASS KEYS IMPORTS
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.routing import Route
+
+from starlette.templating import Jinja2Templates
+import secrets
+import base64
+
+#@login_required(login_url='login')
+
+def runCommand(request):
+    uvicorn --reload main:app
+
+
+    
+
+
+def passKeys(request):
+    templates = Jinja2Templates(directory="templates")
+
+
+    def generate_secret(length: int = 64) -> bytes:
+        """https://www.w3.org/TR/webauthn-2/#sctn-cryptographic-challenges"""
+        return secrets.token_bytes(length)
+
+
+    async def homepage(request):
+        return templates.TemplateResponse("index.html", {"request": request})
+
+
+    async def register_request(request):
+        username = request.path_params.get("username")
+        if username is None:
+            return JSONResponse({"error", "username cannot be empty"})
+
+        # See https://www.w3.org/TR/webauthn-2/#sctn-user-handle-privacy
+        # and https://www.w3.org/TR/webauthn-2/#dom-publickeycredentialuserentity-id
+        # It is RECOMMENDED to let the user handle be 64 random bytes, and store this value in the user’s account.
+        # authentication and authorization decisions MUST be made on the basis of this id member, not the displayName nor name members.
+        # See Section 6.1 of [RFC8266]
+        # Note we send user_id base64 encoded so that it may be serialized into a JSON string which is returned to the browser
+        user_id = base64.b64encode(generate_secret(length=64)).decode("utf-8")
+
+        challenge = base64.b64encode(generate_secret()).decode("utf-8")
+
+        publicKeyCrendentialCreationOptions = {
+            "challenge": challenge,  # Must be decoded back into bytes client side
+            "rp": {
+                "name": "ACME Corp",
+                # id not required, and is OK to not provide
+                # since the challange includes the origin
+                # when generating the attestationObject
+                # *"id": "localhost" */
+            },
+            # user_id Must be decoded back into bytes client side
+            "user": {"name": "Bob", "displayName": "Bob", "id": user_id},
+            # https://w3c.github.io/webauthn/#dom-publickeycredentialcreationoptions-pubkeycredparams */
+            "pubKeyCredParams": [
+                {"type": "public-key", "alg": -7},
+                {"type": "public-key", "alg": -35},
+                {"type": "public-key", "alg": -36},
+                {"type": "public-key", "alg": -257},
+                {"type": "public-key", "alg": -258},
+                {"type": "public-key", "alg": -259},
+                {"type": "public-key", "alg": -37},
+                {"type": "public-key", "alg": -38},
+                {"type": "public-key", "alg": -39},
+                {"type": "public-key", "alg": -8},
+            ],
+            "authenticatorSelection": {
+                # https://www.w3.org/TR/webauthn-2/#dom-authenticatorselectioncriteria-requireresidentkey
+                # "requireResidentKey": false,
+                "userVerification": "preferred",
+                "authenticatorAttachment": "platform",
+            },
+            "timeout": 60000,
+            "attestation": "direct",
+        }
+
+        return JSONResponse(publicKeyCrendentialCreationOptions)
+
+
+    async def receiveAttestationObject(request):
+        """See step 5 of: https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API#registration"""
+        data = await request.json()
+        breakpoint()
+        return "OK"
+
+
+    async def health(request):
+        return JSONResponse({"healthy": True})
+
+
+    app = Starlette(
+        debug=True,
+        routes=[
+            Route("/", homepage),
+            Route("/register/{username}", register_request),
+            Route(
+                "/register/sendAttestationObject",
+                receiveAttestationObject,
+                methods=["POST"],
+            ),
+        ],
+    )
+
+
+
+    #return HttpResponse("THANKS FOR REGISTERING")
+
+
+
+
+    return render(request,'index.html')
+
+    my urls.py codes are;
+  from django.urls import path
+from . import views
+
+#app_name = "polls"
+
+urlpatterns = [
+    path('', views.passKeys, name='passKeys'),
+    path('runCommand/', views.runCommand, name='runCommand'),
+
+    path('home/', views.home, name='home'),
+    
+]
+
+django html templates codes are;
+<!DOCTYPE html>
+
+<html>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <h1>Webauthn Demo</h1>
+
+  <div style="border: 2px solid red;">
+    <p>This is a demo for learning and to show the key concepts in code.</p>
+  </div>  
+
+  <div id="output" style="border: 1px solid black;"></div>
+
+  <p>There are two key stages with Webauthn:</p>
+
+  <ol>
+    <li><a href="https://www.w3.org/TR/webauthn-2/#sctn-usecase-registration" target="_blank">Registration</a></li>
+    <li><a href="https://www.w3.org/TR/webauthn-2/#sctn-usecase-authentication" target="_blank">Authentication</a></li>
+  </ol>
+
+
+  <h2>Webauthn - Registration</h2>
+  <p>
+  On a phone:
+  </p>
+
+  <ol>
+    <li>
+  User navigates to example.com in a browser and signs in to an existing account using whatever method they have been using (possibly a legacy method such as a password), or creates a new account.
+    </li>
+
+    <li>
+    The phone prompts, "Do you want to register this device with example.com?"
+    </li>
+
+    <li>
+    User agrees.
+    </li>
+
+    <li>
+    The phone prompts the user for a previously configured authorization gesture (PIN, biometric, etc.); the user provides this.
+    </li>
+
+    <li>
+    Website shows message, "Registration complete."
+    </li>
+  </ol>
+
+  <button id="authenticate">Authenticate/Login</button>
+ 
+  <h3>1) Sign-in</h3>
+   <a href="{% url 'runCommand' %}">Continue</a>
+    Demo: alice@example.com/secret
+    <form id="sign-in">
+      Email: <input type="email" name="email" placeholder="alice@example.com" /><br />
+      Password: <input type="password" name="password" placeholder="secret" /><br />
+      <input type="submit" />
+    </form>
+
+    <div id="do-you-want-to-register-your-device" style="display: none">
+      <h3>2) Do you want to register this device with this site?</h3>
+      <button id="register">Yes</button>
+      <button>No</button>
+      <br /><br /><br />
+
+
+
+    </div>
+
+    <div id="device-registration-complete" style="display: none">
+      <h3>✅ Device Registration Complete</h3>
+    </div>
+
+<!-- Note: This code does not run from top to bottom -->
+<!-- Note: Run from localhost (not 127.0.0.1) or a https address -->
+
+<script>
+
+// Sign in
+
+signInForm = document.getElementById("sign-in");
+
+signInForm.addEventListener("submit", function(e) {
+  e.preventDefault();
+  document.getElementById("do-you-want-to-register-your-device").style.display="block";
+  window.scrollTo(0,document.body.scrollHeight);
+})
+
+// Register a user
+document.getElementById("register").addEventListener('click', function(e) {
+  fetch('/register/chris')
+  .then(response => response.json())
+  .then(publicKeyCrendentialCreationOptions => {
+    console.log(publicKeyCrendentialCreationOptions);
+    createCredential(publicKeyCrendentialCreationOptions);
+  });
+});
+
+
+async function createCredential(publicKeyCrendentialCreationOptions) {
+  log("in createCredential");
+  // Decode base64 parts to Uint8Array & Webauthn createCredential
+
+  // Decode challenge from base64 to Uint8Array
+  publicKeyCrendentialCreationOptions['challenge'] = Uint8Array.from(atob(publicKeyCrendentialCreationOptions['challenge']));
+  
+  // Decode user->id from base64 to Uint8Array
+  // See https://www.w3.org/TR/webauthn-2/#sctn-user-handle-privacy
+  // and https://www.w3.org/TR/webauthn-2/#dom-publickeycredentialuserentity-id
+  // It is RECOMMENDED to let the user handle be 64 random bytes, and store this value in the user’s account.
+  // authentication and authorization decisions MUST be made on the basis of this id member, not the displayName nor name members. 
+  // See Section 6.1 of [RFC8266]
+  localStorage.setItem("user_id", publicKeyCrendentialCreationOptions['user']['id']) // Store the base64 version before decoding
+  publicKeyCrendentialCreationOptions['user']['id'] = Uint8Array.from(atob(publicKeyCrendentialCreationOptions['user']['id']));
+
+  
+  const crendential = await navigator.credentials.create({
+    publicKey: publicKeyCrendentialCreationOptions,
+    UserVerificationRequirement: {}
+  }).then((creds) => { 
+    log(creds);
+    // Send PublicKeyCredential to server
+    /* The navigator.credentials.create Promise resolves to an PublicKeyCredential, 
+       which has a PublicKeyCredential.rawId that is the globally unique credential id along with a response 
+       that is the AuthenticatorAttestationResponse containing the AuthenticatorResponse.clientDataJSON and 
+       AuthenticatorAttestationResponse.attestationObject. 
+       The PublicKeyCredential (needs to be) sent back to the server 
+       (note that the ArrayBuffer properties need to be base64 encoded or similar).
+       See: Step 5 of https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API#registration
+    */
+
+    // Encode the ArrayBuffer properties to base64
+    creds['rawId'] = btoa(creds['rawId']);
+    creds['response']['attestationObject'] = btoa(creds['response']['attestationObject']);
+    creds['response']['clientDataJSON'] = btoa(creds['response']['clientDataJSON']);
+
+    fetch('/register/sendAttestationObject', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(creds)
+    }).then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+    // Show device registration complete
+    document.getElementById("device-registration-complete").style.display = "block";
+    window.scrollTo(0,document.body.scrollHeight);
+  });
+}
+  
+// Authenticate existing user
+document.getElementById("authenticate").addEventListener('click', function(e) {
+  navigator.credentials.get(getCredentialDefaultArgs).then((creds) => { console.log(creds)});
+  // What happens next?
+});
+
+
+
+
+
+// sample arguments for login
+var getCredentialDefaultArgs = {
+    publicKey: {
+        timeout: 60000,
+        // allowCredentials: [newCredential] // see below
+        challenge: new Uint8Array([ // must be a cryptographically random number sent from a server
+            0x79, 0x50, 0x68, 0x71, 0xDA, 0xEE, 0xEE, 0xB9, 0x94, 0xC3, 0xC2, 0x15, 0x67, 0x65, 0x26, 0x22,
+            0xE3, 0xF3, 0xAB, 0x3B, 0x78, 0x2E, 0xD5, 0x6F, 0x81, 0x26, 0xE2, 0xA6, 0x01, 0x7D, 0x74, 0x50
+        ]).buffer
+    },
+};
+
+function log(msg) {
+  console.log(msg);
+  document.getElementById("output").innerHTML += "<br />" + msg;
+}
+
+
+</script>
+</html>

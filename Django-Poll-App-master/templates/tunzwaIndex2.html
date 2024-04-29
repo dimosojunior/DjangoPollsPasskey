@@ -1,0 +1,379 @@
+{% extends 'polls/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+  <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <title>Authentication page</title>
+
+
+
+    <style type="text/css">
+    
+
+  .header-welcome{
+    
+    justify-content: center;
+    /*align-content: center;*/
+    align-items: center;
+    /*text-align: center;*/
+      }   
+
+  .message-container{
+    width: 50%;
+    box-shadow: 10px 10px  10px  rgba(0,255,0,0.5);
+
+  }
+  .header-welcom-msg{
+    color: white;
+    font-size: 18px;
+  }   
+
+.main-header-text{
+  color: white;
+  font-size: 35px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+
+input{
+  width: 50%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid white;
+  color: black;
+  border-width: 1px;
+}
+.login-butani{
+  width: 10%;
+  background-color: green;
+  color: white;
+  border-radius: 7px;
+  border-top-right-radius: 0px;
+  padding: 8px;
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+label{
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 12px;
+  margin-top: 20px;
+}
+
+
+    </style>
+
+</head>
+
+
+
+<body>
+  <div class="container">
+    
+       <h1 class="main-header-text">STUDENTS POLLING SYSTEM</h1>
+
+
+  <div class="row header-welcome" style="">
+    
+   <div class="message-container">
+    <p class="header-welcom-msg">Welcome to the student voting system. In order to cast your vote, you need to register if you don't have an account yet, or if you already have an account, log in to the system using your email and password to begin voting</p></div>
+    
+  </div>  
+
+
+  <div id="output" class="row message-container">
+    
+
+
+  </div>
+
+  
+ 
+
+
+
+<!-- mwanzo wa after clicked container -->
+  <div class="" id="after-clicked-container" style="display: none;align-items: center;align-content: center;justify-content: center;">
+
+<center>
+    
+  <button class="btn btn-success" id="authenticate" style="border-radius: 10px;padding: 10px;color: white;font-size: 16px;margin-top: 40px;width: 20%;">Continue</button></center>         
+          
+       
+    </div>
+
+
+<!-- mwisho wa after clicked container -->
+
+
+
+
+<!-- kabla ya kuclickinaanzia hapa -->
+
+ <div class="container" id="form-container"><!-- Added id for form container -->
+
+<!-- mwanzo wa get started container -->
+<div id="get-started-container" style="display: nonee;align-items: center;align-content: center;justify-content: center;">
+  <center>
+     <form action="{% url 'run_command' %}" method="post">
+      {% csrf_token %}
+
+   <button type="submit" class="btn btn-primary"  style="border-radius: 10px;padding: 10px;color: white;font-size: 16px;margin-top: 40px;width: 20%;" >Get Started</button>
+
+    </form>
+ </center>  
+</div>
+<!-- mwisho wa get started container -->
+
+
+
+<!-- mwazo wa login button container -->
+<div id="get-started-container" style="display: nonee;align-items: center;align-content: center;justify-content: center;">
+  <center>
+     
+<a href="http://localhost:8000/">
+   <button class="btn btn-success"  style="border-radius: 10px;padding: 10px;color: white;font-size: 16px;margin-top: 40px;width: 20%;">Login</button></a>
+
+  
+ </center>  
+</div>
+<!-- mwisho wa login button container -->
+
+
+
+  
+<form id="sign-in" style="margin-top: 20px;">
+    {% csrf_token %}
+    <center>
+    
+
+
+
+   
+ <label>Enter Email</label><br>
+  <input type="email" name="email" placeholder="alice@example.com" /><br />
+
+  <label>Enter Password</label><br>
+  <input type="password" name="password" placeholder="secret" /><br />
+
+
+        {% if messages %}
+{% for message in messages %}
+     
+
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong style="color: red;font-size: 16px;">{{message}}</strong>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+    {% endfor %}
+  {% endif %}
+
+      <input type="submit" id="start-button" class="login-butani" value="login" />
+
+
+    </div>
+</center>
+</form>
+
+
+    
+    
+
+
+<!-- mwazo wa do you want to register container -->
+<div id="do-you-want-to-register-your-device" style="display: none;align-items: center;align-content: center;justify-content: center;">
+  <center>
+     
+ <h3 style="color: white;font-size: 18px;"> Do you want to register this device with this site?</h3>
+
+<div style="display: flex;justify-content: center;align-content: center;margin-bottom: 20px;"> 
+  <button id="register" class="btn btn-success"  style="border-radius: 10px;padding: 10px;color: white;font-size: 16px;margin-top: 40px;width: 10%; margin-right: 15px;">Yes</button></a>
+
+ <button class="btn btn-danger"  style="border-radius: 10px;padding: 10px;color: white;font-size: 16px;margin-top: 40px;width: 10%;">No</button></a></div>
+
+
+
+  
+ </center>  
+</div>
+<!-- mwisho wa do you want to register container -->
+
+
+
+
+
+
+<!-- mwazo wa device-registration-complete container -->
+<div id="device-registration-complete" style="display: none;align-items: center;align-content: center;justify-content: center;">
+  <center>
+ 
+<h3 style="color: white;font-size: 18px;">✅ Device Registration Complete</h3>
+  
+ </center>  
+</div>
+<!-- mwisho wa device-registration-complete container -->
+
+
+
+
+
+
+</div>
+<!--mwisho  baada ya kuclickinaanzia hapa -->
+
+
+
+
+
+
+
+
+<script>
+    // JavaScript for hiding and showing containers
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hide 'after-clicked-container' initially
+        document.getElementById('after-clicked-container').style.display = 'none';
+
+        // Add click event listener to 'start-button'
+        document.getElementById('start-button').addEventListener('click', function () {
+            // Hide 'form-container'
+            document.getElementById('form-container').style.display = 'none';
+            // Show 'after-clicked-container'
+            document.getElementById('after-clicked-container').style.display = 'block';
+        });
+
+        // Add click event listener to 'cancel-button'
+        document.getElementById('cancel-button').addEventListener('click', function () {
+            // Hide 'after-clicked-container'
+            document.getElementById('after-clicked-container').style.display = 'none';
+            // Show 'form-container'
+            document.getElementById('form-container').style.display = 'block';
+        });
+    });
+</script>
+
+
+
+<script>
+
+// Sign in
+
+signInForm = document.getElementById("sign-in");
+
+signInForm.addEventListener("submit", function(e) {
+  e.preventDefault();
+  document.getElementById("do-you-want-to-register-your-device").style.display="block";
+  window.scrollTo(0,document.body.scrollHeight);
+})
+
+// Register a user
+document.getElementById("register").addEventListener('click', function(e) {
+  fetch('/register/chris')
+  .then(response => response.json())
+  .then(publicKeyCrendentialCreationOptions => {
+    console.log(publicKeyCrendentialCreationOptions);
+    createCredential(publicKeyCrendentialCreationOptions);
+  });
+});
+
+
+async function createCredential(publicKeyCrendentialCreationOptions) {
+  log("in createCredential");
+  // Decode base64 parts to Uint8Array & Webauthn createCredential
+
+  // Decode challenge from base64 to Uint8Array
+  publicKeyCrendentialCreationOptions['challenge'] = Uint8Array.from(atob(publicKeyCrendentialCreationOptions['challenge']));
+  
+  // Decode user->id from base64 to Uint8Array
+  // See https://www.w3.org/TR/webauthn-2/#sctn-user-handle-privacy
+  // and https://www.w3.org/TR/webauthn-2/#dom-publickeycredentialuserentity-id
+  // It is RECOMMENDED to let the user handle be 64 random bytes, and store this value in the user’s account.
+  // authentication and authorization decisions MUST be made on the basis of this id member, not the displayName nor name members. 
+  // See Section 6.1 of [RFC8266]
+  localStorage.setItem("user_id", publicKeyCrendentialCreationOptions['user']['id']) // Store the base64 version before decoding
+  publicKeyCrendentialCreationOptions['user']['id'] = Uint8Array.from(atob(publicKeyCrendentialCreationOptions['user']['id']));
+
+  
+  const crendential = await navigator.credentials.create({
+    publicKey: publicKeyCrendentialCreationOptions,
+    UserVerificationRequirement: {}
+  }).then((creds) => { 
+    log(creds);
+    // Send PublicKeyCredential to server
+    /* The navigator.credentials.create Promise resolves to an PublicKeyCredential, 
+       which has a PublicKeyCredential.rawId that is the globally unique credential id along with a response 
+       that is the AuthenticatorAttestationResponse containing the AuthenticatorResponse.clientDataJSON and 
+       AuthenticatorAttestationResponse.attestationObject. 
+       The PublicKeyCredential (needs to be) sent back to the server 
+       (note that the ArrayBuffer properties need to be base64 encoded or similar).
+       See: Step 5 of https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API#registration
+    */
+
+    // Encode the ArrayBuffer properties to base64
+    creds['rawId'] = btoa(creds['rawId']);
+    creds['response']['attestationObject'] = btoa(creds['response']['attestationObject']);
+    creds['response']['clientDataJSON'] = btoa(creds['response']['clientDataJSON']);
+
+    fetch('/register/sendAttestationObject', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(creds)
+    }).then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+    // Show device registration complete
+    document.getElementById("device-registration-complete").style.display = "block";
+    window.scrollTo(0,document.body.scrollHeight);
+  });
+}
+  
+// Authenticate existing user
+document.getElementById("authenticate").addEventListener('click', function(e) {
+  navigator.credentials.get(getCredentialDefaultArgs).then((creds) => { console.log(creds)});
+  // What happens next?
+});
+
+
+
+
+
+// sample arguments for login
+var getCredentialDefaultArgs = {
+    publicKey: {
+        timeout: 60000,
+        // allowCredentials: [newCredential] // see below
+        challenge: new Uint8Array([ // must be a cryptographically random number sent from a server
+            0x79, 0x50, 0x68, 0x71, 0xDA, 0xEE, 0xEE, 0xB9, 0x94, 0xC3, 0xC2, 0x15, 0x67, 0x65, 0x26, 0x22,
+            0xE3, 0xF3, 0xAB, 0x3B, 0x78, 0x2E, 0xD5, 0x6F, 0x81, 0x26, 0xE2, 0xA6, 0x01, 0x7D, 0x74, 0x50
+        ]).buffer
+    },
+};
+
+function log(msg) {
+  console.log(msg);
+  document.getElementById("output").innerHTML += "<br />" + msg;
+}
+
+
+</script>
+
+</div>
+</body>
+</html>
+
+{% endblock %}

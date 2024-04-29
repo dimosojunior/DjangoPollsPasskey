@@ -1,0 +1,463 @@
+{% extends 'polls/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+	<title></title>
+
+	<style type="text/css">
+     *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: sans-serif;
+        font-size: 16px;
+
+      }
+      ul li{
+        list-style: none;
+      }
+    
+ h5{
+  font-size: 16px;
+  font-family: sans-serif;
+ }
+		
+
+	</style>
+
+</head>
+<body>
+	
+<div class="container-fluid">
+
+
+<center>
+		<h1 style="color: white;font-weight: bold;margin-top: 20px;">STUDENTS POLLING SYSTEM</h1>
+
+{% if user.is_authenticated %}
+   
+    
+    {% if user.is_superuser %}
+    <a href="/admin">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" style="font-size: 18px;margin-right: 20px;">Welcome {{user.username}}</button></a>
+        {% else %}
+        <a href="#">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" style="font-size: 18px;margin-right: 20px;">Welcome {{user.username}}</button></a>
+
+        {% endif %}
+
+
+
+  {% else %}
+   <h1 style="color: white;font-weight: bold;margin-top: 10px;font-size: 20px;color: red;">To start election click login button to be verified or  <a href="{% url 'UserRegistrationView' %}">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" style="font-size: 18px;margin-right: 20px;">Signup</button></a>
+
+   </h1>
+  {% endif %}
+
+        {% if messages %}
+{% for message in messages %}
+     
+
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong style="color: red;font-size: 16px;">{{message}}</strong>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+    {% endfor %}
+  {% endif %}
+
+	</center>
+
+
+<!-- KAMA USER AMIJISAJILI ZINAANZIA HAPA -->
+
+{% if user.is_authenticated %}
+
+
+<div class="buttons-container">
+
+
+	
+<!-- <center>
+		<h1 style="color: white;font-weight: bold;">SMART INVIGILATION<br> SYSTEM</h1>
+	</center> -->
+
+<div class="buttons"><!-- mwanzo wa buttons-div -->
+
+<a href="{% url 'home' %}" style="text-decoration: none;">
+<!-- <label>
+		<input type="checkbox" name="check">
+		<span data-bs-toggle="modal" data-bs-target="#record"></span>
+		<i class="fa fa-home icon" data-bs-toggle="modal" data-bs-target="#record"> HOME</i> 
+	</label> -->
+
+  <label>
+    <!-- <input type="checkbox" name="check"> -->
+    <span></span>
+    <i class="fa fa-home icon" style="font-size: 16px;"> HOME</i>
+  </label>
+</a>
+
+
+<a href="{% url 'AllElectionCategories' %}" style="text-decoration: none;">
+<label>
+    <!-- <input type="checkbox" name="check"> -->
+    <span></span>
+    <i class="fa fa-book icon" style="font-size: 16px;"> POLLS</i>
+  </label>
+</a>
+
+<a href="{% url 'list_by_user' %}" style="text-decoration: none;">
+<label>
+    <!-- <input type="checkbox" name="check"> -->
+    <span></span>
+    <i class="fa fa-user icon" style="font-size: 16px;"> MY POLLS</i>
+  </label>
+</a>
+
+
+<a href="{% url 'logout' %}" style="text-decoration: none;">
+	<label>
+		<!-- <input type="checkbox" name="check"> -->
+		<span></span>
+		<i class="fa fa-user icon" style="font-size: 16px;"> LOGOUT</i>
+	</label></a>
+
+ <!-- <label>
+    <input type="checkbox" name="check">
+    <span data-bs-toggle="modal" data-bs-target="#loginlogin"></span>
+    <i class="fa fa-user icon" data-bs-toggle="modal" data-bs-target="#loginlogin"> LOGIN</i>
+  </label> -->
+
+	<label>
+		<input type="checkbox" name="check">
+		<span data-bs-toggle="modal" data-bs-target="#help"></span>
+		<i class="fa fa-moon icon" data-bs-toggle="modal" data-bs-target="#help" style="font-size: 16px;"> HELP</i>
+	</label>
+
+	
+	
+
+</div><!-- mwisho wa buttons div -->
+
+
+
+
+</div><!-- mwisho wa butons-container -->
+
+
+
+<!-- KAMA USER AMIJISAJILI ZINAISHIA HAPA -->
+
+
+
+
+
+
+{% else %}
+
+
+
+<!-- KAMA USER HAJAJISAJILI ZINAANZIA HAPA -->
+
+
+
+<div class="buttons-container">
+
+
+  
+<!-- <center>
+    <h1 style="color: white;font-weight: bold;">SMART INVIGILATION<br> SYSTEM</h1>
+  </center> -->
+
+<div class="buttons"><!-- mwanzo wa buttons-div -->
+
+<label>
+    <input type="checkbox" name="check">
+    <span data-bs-toggle="modal" data-bs-target="#webcam"></span>
+    <i class="fa fa-home icon" data-bs-toggle="modal" data-bs-target="#webcam" style="font-size: 16px;"> HOME</i>
+  </label>
+
+  <label>
+    <input type="checkbox" name="check">
+    <span data-bs-toggle="modal" data-bs-target="#polls"></span>
+    <i class="fa fa-book icon" data-bs-toggle="modal" data-bs-target="#polls" style="font-size: 16px;"> POLLS</i>
+  </label>
+
+
+  <label>
+    <input type="checkbox" name="check">
+    <span data-bs-toggle="modal" data-bs-target="#mypolls"></span>
+    <i class="fa fa-user icon" data-bs-toggle="modal" data-bs-target="#mypolls" style="font-size: 16px;"> MY POLLS</i>
+  </label>
+
+
+
+  <!-- <label>
+    
+    <span data-bs-toggle="modal" data-bs-target="#logoutnotlogin"></span>
+    <i class="fa fa-user icon" data-bs-toggle="modal" data-bs-target="#logoutnotlogin"> LOGOUT</i>
+  </label> -->
+
+ 
+
+  <a href="{% url 'login' %}" style="text-decoration: none;">
+<label>
+    <!-- <input type="checkbox" name="check"> -->
+    <span></span>
+    <i class="fa fa-user icon" style="font-size: 16px;"> LOGIN</i>
+  </label>
+</a>
+
+  <label>
+    <input type="checkbox" name="check">
+    <span data-bs-toggle="modal" data-bs-target="#help"></span>
+    <i class="fa fa-moon icon" data-bs-toggle="modal" data-bs-target="#help" style="font-size: 16px;"> HELP</i>
+  </label>
+
+  
+  
+
+</div><!-- mwisho wa buttons div -->
+
+
+
+
+</div><!-- mwisho wa butons-container -->
+
+
+
+<!-- KAMA USER HAJAJISAJILI ZINAISHIA HAPA -->
+
+
+
+
+{% endif %}
+
+
+
+
+
+
+
+
+
+<!-- ----------------------------------------------------------- -->
+
+<!-- Modal  for HELP BUTTON -->
+
+
+<div class="modal fade" id="help" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">WELCOME TO  STUDENTS POLLING SYSTEM </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+
+      <div class="modal-body" style="font-size: 18px;background-color:rgb(5,5,49);color: white;font-family: sans-serif;">
+
+        <ul>
+          <li><span style="color: red">Step 1:</span> Login using a correct password and username.</li>
+          <li><span style="color: red">Step 2:</span> Click Polls button to start election of students</li>
+          <li><span style="color: red">Step 3:</span> Click Logout button to logout from the system</li>
+        </ul>
+        </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="font-size: 18px;">Close</button>
+        </div>
+
+
+
+
+    </div>
+  </div>
+</div>
+<!--MWISHO WA  Modal  for HELP BUTTON -->
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Modal  for POLLS NOT LOGIN BUTTON -->
+
+
+<div class="modal fade" id="polls" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">WELCOME TO STUDENTS POLLING SYSTEM </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+
+      <div class="modal-body" style="font-size: 18px;background-color:rgb(5,5,49);color: white;font-family: sans-serif;">
+
+        <ul>
+         <li>Sorry!!!! <br> To start election of students you have to login first.</li>
+        </ul>
+        </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="font-size: 18px;">Close</button>
+        </div>
+
+
+
+
+    </div>
+  </div>
+</div>
+<!--MWISHO WA  Modal  for POLLS NOT LOGIN BUTTON -->
+
+
+
+
+
+
+
+
+
+
+<!-- Modal  for MY POLLS NOT LOGIN BUTTON -->
+
+
+<div class="modal fade" id="mypolls" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">WELCOME TO STUDENTS POLLING SYSTEM </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+
+      <div class="modal-body" style="font-size: 18px;background-color:rgb(5,5,49);color: white;font-family: sans-serif;">
+
+        <ul>
+         <li>Sorry!!!! <br> To see Your created polls you have to login first.</li>
+        </ul>
+        </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="font-size: 18px;">Close</button>
+        </div>
+
+
+
+
+    </div>
+  </div>
+</div>
+<!--MWISHO WA  Modal  for MY POLLS NOT LOGIN BUTTON -->
+
+
+
+
+
+
+
+
+<!-- Modal  for LOGOUT BEFORE  LOGIN  -->
+
+
+<div class="modal fade" id="logoutnotlogin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">WELCOME TO STUDENTS POLLING SYSTEM </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+
+      <div class="modal-body" style="font-size: 18px;background-color:rgb(5,5,49);color: white;font-family: sans-serif;">
+
+        <ul>
+         <li>Sorry!!!! <br>you can't logout,  You have to login first.</li>
+        </ul>
+        </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="font-size: 18px;">Close</button>
+        </div>
+
+
+
+
+    </div>
+  </div>
+</div>
+<!-- Modal  for LOGOUT BEFORE  LOGIN  -->
+
+
+
+
+
+
+<!-- Modal  for LOGIN AFTER  LOGIN  -->
+
+
+<div class="modal fade" id="loginlogin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">WELCOME TO STUDENTS POLLING SYSTEM </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+
+      <div class="modal-body" style="font-size: 18px;background-color:rgb(5,5,49);color: white;font-family: sans-serif;">
+
+        <ul>
+         <li>Sorry!!!! <br> You have already authenticated as {{user.username}} in this system.</li>
+        </ul>
+        </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="font-size: 18px;">Close</button>
+        </div>
+
+
+
+
+    </div>
+  </div>
+</div>
+<!-- Modal  for LOGIN AFTER  LOGIN  -->
+
+
+
+
+
+
+	
+</div><!-- mwisho wa container -->
+</body>
+</html>
+{% endblock %}

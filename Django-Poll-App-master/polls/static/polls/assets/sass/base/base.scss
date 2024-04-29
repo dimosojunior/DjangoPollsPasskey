@@ -1,0 +1,77 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    color-scheme: light dark;
+}
+
+@media (prefers-reduced-motion) {
+    * {
+        transition: none;
+    }
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--accent-background-color);
+}
+
+a {
+    display: block;
+    text-decoration: none;
+}
+
+
+.page-content {
+    margin-left: 250px;
+    position: relative;
+}
+
+.card-video {
+    h4 {
+        font-size: 16px;
+        font-weight: bold;
+        color:  var(--color);
+    }
+
+    div {
+        color: var(--link-color);
+        font-size: 13px;
+    }
+
+    &-details {
+        img {
+            border-radius: 50%;
+        }
+    }
+}
+
+.text-dark {
+    color: var(--color) !important;
+}
+
+svg path {
+    fill: var(--color);
+}
+
+input.form-control {
+    background-color: var(--accent-background-color) !important;
+    border-color: var(--border) !important;
+    color: var(--color) !important;
+    &:focus {
+        box-shadow: none;
+    }
+}
+
+.input-group-text {
+    background-color: var(--accent-color) !important;
+    border-color: var(--border) !important;
+}
+
+
+hr {
+    background-color: var(--border) !important;
+}
